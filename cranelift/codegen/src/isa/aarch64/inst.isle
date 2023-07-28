@@ -1759,6 +1759,12 @@
 (decl pure partial is_zero_uimm12 (UImm12Scaled) Unit)
 (extern constructor is_zero_uimm12 is_zero_uimm12)
 
+(decl pure zero_uimm12 (Type) UImm12Scaled)
+(extern constructor zero_uimm12 zero_uimm12)
+
+(decl pure partial uimm12_from_u64 (u64 Type) UImm12Scaled)
+(extern constructor uimm12_from_u64 uimm12_from_u64)
+
 ;; Helper to go directly from a `Value`, when it's an `iconst`, to an `Imm12`.
 (decl imm12_from_value (Imm12) Value)
 (extractor
@@ -3068,7 +3074,13 @@
 ;; Lower the address of a load or a store.
 (decl amode (Type Value u32) AMode)
 ;; TODO: Port lower_address() to ISLE.
-(extern constructor amode amode)
+; (rule (amode ty (ishl y (iconst (uimm8 shift))) 0)
+;   (AMode.RegScaled x y $I32))
+; (extern constructor amode amode)
+
+(rule (amode ty val off)
+      (if-let imm (uimm12_from_u64 off ty))
+      (AMode.UnsignedOffset val imm))
 
 (decl sink_load_into_addr (Type Inst) Reg)
 (rule (sink_load_into_addr ty x @ (load _ addr (offset32 offset)))

@@ -249,6 +249,14 @@ impl Context for IsleContext<'_, '_, MInst, AArch64Backend> {
         }
     }
 
+    fn zero_uimm12(&mut self, ty: Type) -> UImm12Scaled {
+        UImm12Scaled::zero(ty)
+    }
+
+    fn uimm12_from_u64(&mut self, n: u64, ty: Type) -> Option<UImm12Scaled> {
+        UImm12Scaled::maybe_from_i64(n as i64, ty)
+    }
+
     /// This is target-word-size dependent.  And it excludes booleans and reftypes.
     fn valid_atomic_transaction(&mut self, ty: Type) -> Option<Type> {
         match ty {
@@ -571,11 +579,11 @@ impl Context for IsleContext<'_, '_, MInst, AArch64Backend> {
         }
     }
 
-    fn amode(&mut self, ty: Type, addr: Value, offset: u32) -> AMode {
-        let addr_ty = self.value_type(addr);
-        assert!(addr_ty == I64 || addr_ty == R64);
-        lower_address(self.lower_ctx, ty, addr, offset as i32)
-    }
+    // fn amode(&mut self, ty: Type, addr: Value, offset: u32) -> AMode {
+    //     let addr_ty = self.value_type(addr);
+    //     assert!(addr_ty == I64 || addr_ty == R64);
+    //     lower_address(self.lower_ctx, ty, addr, offset as i32)
+    // }
 
     fn pair_amode(&mut self, addr: Value, offset: u32) -> PairAMode {
         let addr_ty = self.value_type(addr);
